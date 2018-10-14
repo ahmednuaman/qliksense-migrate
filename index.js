@@ -95,7 +95,7 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
 Promise.all([
   prepareExtensionsMigration()
 ])
-  .then((extensionRequests) => {
+  .then(([ extensionRequests ]) => {
     console.log({ extensionRequests })
     async.series(extensionRequests, (error) => {
       if (error) {
