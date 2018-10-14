@@ -1,46 +1,47 @@
 #!/usr/bin/env node
 
+const { generate } = require('randomstring')
 const async = require('async')
 const colors = require('colors')
 const request = require('request')
 
 const OLD_HOST = process.env.OLD_HOST
+const OLD_USERID = process.env.OLD_USERID
 const NEW_HOST = process.env.NEW_HOST
-const XRF_KEY = require('randomstring').generate({
+const NEW_USERID = process.env.NEW_USERID
+
+let requests = []
+
+const makeXRFKey = () => generate({
   length: 16,
   charset: 'alphanumeric'
 })
 
-let requests = []
+const makeHeadersAndQS = (userid) => {
+  const xrfkey = makeXRFKey()
 
-const headers = {
-  'X-Qlik-Xrfkey': XRF_KEY,
-  userid: process.env.USERID
+  return {
+    headers: {
+      userid,
+      'X-Qlik-Xrfkey': xrfkey
+    },
+    qs: {
+      xrfkey
+    }
+  }
 }
-const qs = {
-  xrfkey: XRF_KEY
-}
-
-const oldHostExtensionRequest = request.defaults({
-  headers,
-  qs,
-  baseUrl: `${OLD_HOST}extension/`
-})
-
-const oldHostWesAPIRequest = request.defaults({
-  headers,
-  qs,
-  baseUrl: `${OLD_HOST}api/wes/v1/extensions/export/`
-})
-
-const newHostExtensionRequest = request.defaults({
-  headers,
-  qs,
-  baseUrl: `${NEW_HOST}extension/`
-})
 
 const prepareExtensionsMigration = new Promise((resolve, reject) => {
-  oldHostExtensionRequest.get('schema', (error, response, body) => {
+  const {
+    headers,
+    qs
+  } = makeHeadersAndQS(OLD_USERID)
+
+  request.get({
+    headers,
+    qs,
+    url: `${OLD_HOST}extension/schema`
+  }, (error, response, body) => {
     if (error) {
       return reject(error)
     }
@@ -49,14 +50,30 @@ const prepareExtensionsMigration = new Promise((resolve, reject) => {
       .filter(({ type }) => type === 'extension')
       .forEach((extension) => {
         requests.push((done) => {
-          oldHostWesAPIRequest
-            .get(extension.key)
+          const {
+            headers,
+            qs
+          } = makeHeadersAndQS(OLD_USERID)
+
+          const {
+            headers: newHeaders,
+            qs: newQS
+          } = makeHeadersAndQS(NEW_USERID)
+
+          request
+            .get({
+              headers,
+              qs,
+              url: `${OLD_HOST}api/wes/v1/extensions/export/${extension.key}`
+            })
             .pipe(
-              newHostExtensionRequest
-                .post('upload', {
-                  headers: Object.assign(headers, {
+              request
+                .post({
+                  qs: newQS,
+                  headers: Object.assign(newHeaders, {
                     'content-type': 'application/x-www-form-urlencoded'
-                  })
+                  }),
+                  url: `${NEW_HOST}extension/upload`
                 })
                 .on('error', (error) => done(error.toString()))
                 .on('data', (data) => console.log(extension.key, data.toString()))
