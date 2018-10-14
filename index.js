@@ -11,8 +11,6 @@ const OLD_USERID = process.env.OLD_USERID
 const NEW_HOST = process.env.NEW_HOST
 const NEW_USERID = process.env.NEW_USERID
 
-let requests = []
-
 const makeXRFKey = () => generate({
   length: 16,
   charset: 'alphanumeric'
@@ -48,11 +46,11 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
       return reject(error)
     }
 
-    _
-      .map(body, (entry, key) => Object.assign(entry, { key }))
-      .filter(({ type }) => type === 'extension')
-      .forEach((extension) => {
-        requests.push((done) => {
+    const requests =
+      _
+        .map(body, (entry, key) => Object.assign(entry, { key }))
+        .filter(({ type }) => type === 'extension')
+        .map((extension) => (done) => {
           const {
             headers,
             qs
@@ -87,17 +85,16 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
                 })
             )
         })
-      })
 
-    resolve(body)
+    resolve(requests)
   })
 })
 
 Promise.all([
   prepareExtensionsMigration()
 ])
-  .then(() => {
-    async.series(requests, (error) => {
+  .then((extensionRequests) => {
+    async.series(extensionRequests, (error) => {
       if (error) {
         console.log(colors.red(error))
       } else {
