@@ -83,7 +83,12 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
                 .on('data', (data) => console.log(extension.key, data.toString()))
                 .on('response', (response) => {
                   console.log(`Successfully deployed extension ${extension.key}`, response.statusCode)
-                  done()
+
+                  if (response.statusCode !== 200) {
+                    done(response)
+                  } else {
+                    done()
+                  }
                 })
             )
         })
@@ -96,10 +101,10 @@ Promise.all([
   prepareExtensionsMigration()
 ])
   .then(([ extensionRequests ]) => {
-    console.log({ extensionRequests })
     async.series(extensionRequests, (error) => {
       if (error) {
         console.log(colors.red(error))
+        process.exit(1)
       } else {
         console.log(colors.bold.green('All files successfully deployed'))
       }
