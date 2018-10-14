@@ -40,6 +40,7 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
   request.get({
     headers,
     qs,
+    json: true,
     url: `${OLD_HOST}extension/schema`
   }, (error, response, body) => {
     if (error) {
