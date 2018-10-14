@@ -73,6 +73,7 @@ const prepareExtensionsMigration = new Promise((resolve, reject) => {
                   headers: Object.assign(newHeaders, {
                     'content-type': 'application/x-www-form-urlencoded'
                   }),
+                  strictSSL: false,
                   url: `${NEW_HOST}extension/upload`
                 })
                 .on('error', (error) => done(error.toString()))
