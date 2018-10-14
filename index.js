@@ -70,15 +70,15 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
               url: `${OLD_HOST}api/wes/v1/extensions/export/${extension.key}`
             })
             .pipe(
-              request
-                .post({
-                  qs: newQS,
-                  headers: Object.assign(newHeaders, {
-                    'content-type': 'application/x-www-form-urlencoded'
-                  }),
-                  strictSSL: false,
-                  url: `${NEW_HOST}extension/upload`
-                })
+              request({
+                headers: Object.assign(newHeaders, {
+                  'content-type': 'application/x-www-form-urlencoded'
+                }),
+                method: 'post',
+                qs: newQS,
+                strictSSL: false,
+                url: `${NEW_HOST}extension/upload`
+              })
                 .on('error', (error) => done(error.toString()))
                 .on('data', (data) => console.log(extension.key, data.toString()))
                 .on('response', (response) => {
