@@ -46,6 +46,8 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
       return reject(error)
     }
 
+    console.log(body)
+
     const requests =
       _
         .map(body, (entry, key) => Object.assign(entry, { key }))
@@ -86,6 +88,7 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
             )
         })
 
+    console.log(requests)
     resolve(requests)
   })
 })
