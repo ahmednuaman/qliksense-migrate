@@ -31,7 +31,7 @@ const makeHeadersAndQS = (userid) => {
   }
 }
 
-const prepareExtensionsMigration = new Promise((resolve, reject) => {
+const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
   const {
     headers,
     qs
