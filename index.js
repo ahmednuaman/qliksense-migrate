@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const { generate } = require('randomstring')
+const _ = require('lodash')
 const async = require('async')
 const colors = require('colors')
 const request = require('request')
@@ -47,7 +48,8 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
       return reject(error)
     }
 
-    body
+    _
+      .map(body, (entry, key) => Object.assign(entry, { key }))
       .filter(({ type }) => type === 'extension')
       .forEach((extension) => {
         requests.push((done) => {
