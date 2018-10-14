@@ -4,7 +4,8 @@ const async = require('async')
 const colors = require('colors')
 const request = require('request')
 
-const HOST = process.env.HOST
+const OLD_HOST = process.env.OLD_HOST
+const NEW_HOST = process.env.NEW_HOST
 const XRF_KEY = require('randomstring').generate({
   length: 16,
   charset: 'alphanumeric'
@@ -20,20 +21,26 @@ const qs = {
   xrfkey: XRF_KEY
 }
 
-const extensionRequest = request.defaults({
+const oldHostExtensionRequest = request.defaults({
   headers,
   qs,
-  baseUrl: `${HOST}extension/`
+  baseUrl: `${OLD_HOST}extension/`
 })
 
-const wesAPIRequest = request.defaults({
+const oldHostWesAPIRequest = request.defaults({
   headers,
   qs,
-  baseUrl: `${HOST}api/wes/v1/extensions/export/`
+  baseUrl: `${OLD_HOST}api/wes/v1/extensions/export/`
+})
+
+const newHostExtensionRequest = request.defaults({
+  headers,
+  qs,
+  baseUrl: `${NEW_HOST}extension/`
 })
 
 const prepareExtensionsMigration = new Promise((resolve, reject) => {
-  extensionRequest.get('schema', (error, response, body) => {
+  oldHostExtensionRequest.get('schema', (error, response, body) => {
     if (error) {
       return reject(error)
     }
@@ -42,10 +49,10 @@ const prepareExtensionsMigration = new Promise((resolve, reject) => {
       .filter(({ type }) => type === 'extension')
       .forEach((extension) => {
         requests.push((done) => {
-          wesAPIRequest
+          oldHostWesAPIRequest
             .get(extension.key)
             .pipe(
-              extension
+              newHostExtensionRequest
                 .post('upload', {
                   headers: Object.assign(headers, {
                     'content-type': 'application/x-www-form-urlencoded'
