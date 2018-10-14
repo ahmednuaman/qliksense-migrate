@@ -11,6 +11,8 @@ const OLD_USERID = process.env.OLD_USERID
 const NEW_HOST = process.env.NEW_HOST
 const NEW_USERID = process.env.NEW_USERID
 
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
+
 const makeXRFKey = () => generate({
   length: 16,
   charset: 'alphanumeric'
@@ -45,8 +47,6 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
     if (error) {
       return reject(error)
     }
-
-    console.log(body)
 
     const requests =
       _
