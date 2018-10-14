@@ -51,7 +51,7 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
     const requests =
       _
         .map(body, (entry, key) => Object.assign(entry, { key }))
-        .filter(({ type }) => type === 'extension')
+        .filter(({ type }) => type === 'visualization')
         .map((extension) => (done) => {
           const {
             headers,
