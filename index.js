@@ -56,37 +56,52 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
           const {
             headers,
             qs
-          } = makeHeadersAndQS(OLD_USERID)
-
-          const {
-            headers: newHeaders,
-            qs: newQS
           } = makeHeadersAndQS(NEW_USERID)
 
-          request
-            .get({
+          request.delete({
+            headers,
+            qs,
+            url: `${NEW_HOST}qrs/name/${extension.key}`
+          }, (error, response, body) => {
+            if (error) {
+              return reject(error)
+            }
+
+            const {
               headers,
-              qs,
-              url: `${OLD_HOST}api/wes/v1/extensions/export/${extension.key}`
-            })
-            .pipe(
-              request.post(`${NEW_HOST}qrs/extension/upload`, {
-                headers: Object.assign(newHeaders, {
-                  'content-type': 'application/x-www-form-urlencoded'
-                }),
-                qs: newQS
+              qs
+            } = makeHeadersAndQS(OLD_USERID)
+
+            const {
+              headers: newHeaders,
+              qs: newQS
+            } = makeHeadersAndQS(NEW_USERID)
+
+            request
+              .get({
+                headers,
+                qs,
+                url: `${OLD_HOST}api/wes/v1/extensions/export/${extension.key}`
               })
-                .on('error', (error) => done(error.toString()))
-                .on('data', (data) => console.log(extension.key, data.toString()))
-                .on('response', (response) => {
-                  if (response.statusCode >= 200 && response.statusCode < 300) {
-                    done(response)
-                  } else {
-                    console.log(`Successfully deployed extension ${extension.key}`, response.statusCode)
-                    done()
-                  }
+              .pipe(
+                request.post(`${NEW_HOST}qrs/extension/upload`, {
+                  headers: Object.assign(newHeaders, {
+                    'content-type': 'application/x-www-form-urlencoded'
+                  }),
+                  qs: newQS
                 })
-            )
+                  .on('error', (error) => done(error.toString()))
+                  .on('data', (data) => console.log(extension.key, data.toString()))
+                  .on('response', (response) => {
+                    if (response.statusCode >= 200 && response.statusCode < 300) {
+                      done(response)
+                    } else {
+                      console.log(`Successfully deployed extension ${extension.key}`, response.statusCode)
+                      done()
+                    }
+                  })
+              )
+          })
         })
 
     resolve(requests)
