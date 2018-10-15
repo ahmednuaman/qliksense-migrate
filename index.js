@@ -42,7 +42,7 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
     headers,
     qs,
     json: true,
-    url: `${OLD_HOST}extension/schema`
+    url: `${OLD_HOST}qrs/extension/schema`
   }, (error, response, body) => {
     if (error) {
       return reject(error)
@@ -70,7 +70,7 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
               url: `${OLD_HOST}api/wes/v1/extensions/export/${extension.key}`
             })
             .pipe(
-              request.post(`${NEW_HOST}extension/upload`, {
+              request.post(`${NEW_HOST}qrs/extension/upload`, {
                 headers: Object.assign(newHeaders, {
                   'content-type': 'application/x-www-form-urlencoded'
                 }),
