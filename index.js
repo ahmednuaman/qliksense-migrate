@@ -81,11 +81,10 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
                 .on('error', (error) => done(error.toString()))
                 .on('data', (data) => console.log(extension.key, data.toString()))
                 .on('response', (response) => {
-                  console.log(`Successfully deployed extension ${extension.key}`, response.statusCode)
-
                   if (response.statusCode !== 200) {
                     done(response)
                   } else {
+                    console.log(`Successfully deployed extension ${extension.key}`, response.statusCode)
                     done()
                   }
                 })
