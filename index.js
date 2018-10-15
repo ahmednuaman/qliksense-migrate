@@ -61,7 +61,7 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
           request.delete({
             headers,
             qs,
-            url: `${NEW_HOST}qrs/name/${extension.key}`
+            url: `${NEW_HOST}qrs/extension/name/${extension.key}`
           }, (error, response, body) => {
             if (error) {
               return reject(error)
