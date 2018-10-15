@@ -76,8 +76,6 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
                 }),
                 method: 'post',
                 qs: newQS,
-                strictSSL: false,
-                rejectUnauthorized: false,
                 url: `${NEW_HOST}extension/upload`
               })
                 .on('error', (error) => done(error.toString()))
