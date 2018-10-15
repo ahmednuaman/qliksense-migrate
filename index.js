@@ -94,10 +94,10 @@ const prepareExtensionsMigration = () => new Promise((resolve, reject) => {
                   .on('data', (data) => console.log(extension.key, data.toString()))
                   .on('response', (response) => {
                     if (response.statusCode >= 200 && response.statusCode < 300) {
-                      done(response)
-                    } else {
                       console.log(`Successfully deployed extension ${extension.key}`, response.statusCode)
                       done()
+                    } else {
+                      done(response)
                     }
                   })
               )
